@@ -107,7 +107,6 @@ export default function PageClient({ chat }: { chat: Chat }) {
             setStreamText("");
             setStreamPromise(undefined);
             setActiveMessage(message);
-            router.refresh();
           });
         });
       } finally {
@@ -198,7 +197,6 @@ export default function PageClient({ chat }: { chat: Chat }) {
                     return res.body;
                   });
                   setStreamPromise(streamPromise);
-                  router.refresh();
                 });
               }}
             />

@@ -108,7 +108,12 @@ export default function Home() {
                   "/api/get-next-completion-stream-promise",
                   {
                     method: "POST",
-                    body: JSON.stringify({ messageId: lastMessageId, model }),
+                    body: JSON.stringify({ 
+                      messageId: lastMessageId, 
+                      chatId, 
+                      model, 
+                      userPrompt: prompt 
+                    }),
                   },
                 ).then((res) => {
                   if (!res.body) {
@@ -119,7 +124,7 @@ export default function Home() {
 
                 startTransition(() => {
                   setStreamPromise(streamPromise);
-                  router.push(`/chats/${chatId}`);
+                  router.push(`/chats/${chatId}?prompt=${encodeURIComponent(prompt)}`);
                 });
               });
             }}

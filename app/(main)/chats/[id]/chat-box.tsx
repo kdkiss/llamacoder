@@ -66,7 +66,6 @@ export default function ChatBox({
 
             onNewStreamPromise(streamPromise);
             startTransition(() => {
-              router.refresh();
               setPrompt("");
             });
           });

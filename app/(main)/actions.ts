@@ -116,27 +116,7 @@ export async function createChat(
   }
 
   let userMessage: string;
-  if (quality === "high") {
-    let initialRes = await openai.chat.completions.create({
-      model: "qwen/qwen3-coder:free",
-      messages: [
-        {
-          role: "system",
-          content: softwareArchitectPrompt,
-        },
-        {
-          role: "user",
-          content: fullScreenshotDescription
-            ? fullScreenshotDescription + prompt
-            : prompt,
-        },
-      ],
-      temperature: 0.2,
-      max_tokens: 3000,
-    });
-
-    userMessage = initialRes.choices[0].message?.content ?? prompt;
-  } else if (fullScreenshotDescription) {
+  if (fullScreenshotDescription) {
     userMessage =
       prompt +
       "RECREATE THIS APP AS CLOSELY AS POSSIBLE: " +

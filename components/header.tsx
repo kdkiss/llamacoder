@@ -17,7 +17,14 @@ export default function Header() {
         />
       </Link>
 
-      <div className="absolute right-3">
+      <div className="absolute right-3 flex items-center gap-4">
+        <Link
+          href="/history"
+          className="hidden rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:block"
+        >
+          History
+        </Link>
+        
         <a
           href="https://github.com/nutlope/llamacoder"
           target="_blank"
