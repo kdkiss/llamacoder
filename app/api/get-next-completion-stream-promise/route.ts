@@ -1,12 +1,30 @@
-import { memoryDB } from "@/lib/memory-db";
+import { getPrisma } from "@/lib/prisma";
 import OpenAI from "openai";
 
 export async function POST(req: Request) {
-  const { messageId, model, chatId } = await req.json();
+  const { messageId, model, chatId, userPrompt } = await req.json();
 
   // Skip message lookup and get all messages for the chat
-  const messagesRes = await memoryDB.findMessagesByChat(chatId);
-  let messages = messagesRes.slice(-10);
+  const prisma = getPrisma();
+  const messagesRes = await prisma.message.findMany({
+    where: { chatId },
+    orderBy: { position: 'asc' }
+  });
+  let messages: { role: string; content: string }[] = messagesRes.slice(-10).map(m => ({
+    role: m.role,
+    content: m.content
+  }));
+  
+  console.log('Found messages for chat:', messages.length);
+  console.log('User prompt received:', userPrompt);
+  
+  // Fallback if no messages found - use the actual user prompt
+  if (messages.length === 0) {
+    messages = [
+      { role: "system", content: "You are a helpful coding assistant. Generate complete, working code based on the user's request." },
+      { role: "user", content: userPrompt || "Create a simple web application." }
+    ];
+  }
 
   const openai = new OpenAI({
     apiKey: process.env.OPENROUTER_API_KEY,

@@ -52,6 +52,7 @@ class MemoryDB {
   }
 
   async findChatById(id: string) {
+    console.log('All chat IDs:', Array.from(globalThis.appDatabase.chats.keys()));
     const chat = globalThis.appDatabase.chats.get(id);
     if (!chat) return null;
     
