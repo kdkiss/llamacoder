@@ -54,6 +54,7 @@ export default function ChatBox({
                   messageId: message.id,
                   chatId: chat.id,
                   model: chat.model,
+                  userPrompt: prompt,
                 }),
               },
             ).then((res) => {

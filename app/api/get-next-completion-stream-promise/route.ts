@@ -2,11 +2,21 @@ import { memoryDB } from "@/lib/memory-db";
 import OpenAI from "openai";
 
 export async function POST(req: Request) {
-  const { messageId, model, chatId } = await req.json();
+  const { messageId, model, chatId, userPrompt } = await req.json();
 
   // Skip message lookup and get all messages for the chat
   const messagesRes = await memoryDB.findMessagesByChat(chatId);
   let messages = messagesRes.slice(-10);
+  
+  console.log('Found messages for chat:', messages.length);
+  
+  // Fallback if no messages found - use the actual user prompt
+  if (messages.length === 0) {
+    messages = [
+      { role: "system", content: "You are a helpful coding assistant. Generate complete, working code based on the user's request." },
+      { role: "user", content: userPrompt || "Create a simple web application." }
+    ];
+  }
 
   const openai = new OpenAI({
     apiKey: process.env.OPENROUTER_API_KEY,

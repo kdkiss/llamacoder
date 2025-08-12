@@ -188,6 +188,7 @@ export default function PageClient({ chat }: { chat: Chat }) {
                         messageId: message.id,
                         chatId: chat.id,
                         model: chat.model,
+                        userPrompt: newMessageText,
                       }),
                     },
                   ).then((res) => {
