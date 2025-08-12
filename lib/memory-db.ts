@@ -28,7 +28,16 @@ if (!globalThis.appDatabase) {
   };
 }
 
+// Ensure appDatabase is always defined
+globalThis.appDatabase = globalThis.appDatabase || {
+  chats: new Map<string, Chat>(),
+  messages: new Map<string, Message>()
+};
+
 class MemoryDB {
+  private get db() {
+    return globalThis.appDatabase!;
+  }
 
   generateId(length: number = 16): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -47,16 +56,16 @@ class MemoryDB {
       createdAt: new Date(),
       messages: []
     };
-    globalThis.appDatabase.chats.set(id, chat);
+    this.db.chats.set(id, chat);
     return chat;
   }
 
   async findChatById(id: string) {
-    console.log('All chat IDs:', Array.from(globalThis.appDatabase.chats.keys()));
-    const chat = globalThis.appDatabase.chats.get(id);
+    console.log('All chat IDs:', Array.from(this.db.chats.keys()));
+    const chat = this.db.chats.get(id);
     if (!chat) return null;
     
-    const chatMessages = Array.from(globalThis.appDatabase.messages.values())
+    const chatMessages = Array.from(this.db.messages.values())
       .filter(m => m.chatId === id)
       .sort((a, b) => a.position - b.position);
     
@@ -64,11 +73,11 @@ class MemoryDB {
   }
 
   async updateChat(id: string, data: Partial<Chat>) {
-    const chat = globalThis.appDatabase.chats.get(id);
+    const chat = this.db.chats.get(id);
     if (!chat) return null;
     
     const updated = { ...chat, ...data };
-    globalThis.appDatabase.chats.set(id, updated);
+    this.db.chats.set(id, updated);
     return updated;
   }
 
@@ -79,18 +88,18 @@ class MemoryDB {
       id,
       createdAt: new Date()
     };
-    globalThis.appDatabase.messages.set(id, message);
-    console.log('Stored message with ID:', id, 'Total messages:', globalThis.appDatabase.messages.size);
+    this.db.messages.set(id, message);
+    console.log('Stored message with ID:', id, 'Total messages:', this.db.messages.size);
     return message;
   }
 
   async findMessageById(id: string) {
-    console.log('Looking for message ID:', id, 'Total messages:', globalThis.appDatabase.messages.size);
-    return globalThis.appDatabase.messages.get(id) || null;
+    console.log('Looking for message ID:', id, 'Total messages:', this.db.messages.size);
+    return this.db.messages.get(id) || null;
   }
 
   async findMessagesByChat(chatId: string, maxPosition?: number) {
-    return Array.from(globalThis.appDatabase.messages.values())
+    return Array.from(this.db.messages.values())
       .filter(m => m.chatId === chatId && (maxPosition === undefined || m.position <= maxPosition))
       .sort((a, b) => a.position - b.position);
   }

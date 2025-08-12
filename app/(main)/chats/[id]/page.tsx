@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import PageClient from "./page.client";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({
   params,
   searchParams,
