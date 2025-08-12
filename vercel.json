@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "DATABASE_URL": "file:/tmp/dev.db",
+    "SHADOW_DATABASE_URL": "file:/tmp/shadow.db"
+  }
+}
