@@ -18,7 +18,7 @@
 
 ## Cloning & running
 
-1. Clone the repo: `git clone https://github.com/Nutlope/llamacoder`
+1. Clone the repo: `git clone https://github.com/kdkiss/llamacoder`
 2. Create a `.env` file and add your [OpenRouter API key](https://openrouter.ai): `OPENROUT_API_KEY=`
 3. Run `npm install` and `npm run dev` to install dependencies and run locally
 
