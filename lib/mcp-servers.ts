@@ -1,13 +1,13 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-export type MCPServer = {
-  id: string;
-  name: string;
-  host: string;
-  port: number;
-  username?: string;
-  password?: string;
+export type MCPServersConfig = {
+  mcpServers: Record<string, {
+    command?: string;
+    args?: string[];
+    url?: string;
+  }>;
+
 };
 
 const dataFile = path.join(process.cwd(), 'data', 'mcp-servers.json');
@@ -17,17 +17,20 @@ async function ensureFile() {
     await fs.access(dataFile);
   } catch {
     await fs.mkdir(path.dirname(dataFile), { recursive: true });
-    await fs.writeFile(dataFile, '[]', 'utf8');
+    const initial: MCPServersConfig = { mcpServers: {} };
+    await fs.writeFile(dataFile, JSON.stringify(initial, null, 2), 'utf8');
   }
 }
 
-export async function getServers(): Promise<MCPServer[]> {
+export async function getConfig(): Promise<MCPServersConfig> {
   await ensureFile();
   const data = await fs.readFile(dataFile, 'utf8');
-  return JSON.parse(data) as MCPServer[];
+  return JSON.parse(data) as MCPServersConfig;
 }
 
-export async function saveServers(servers: MCPServer[]): Promise<void> {
+export async function saveConfig(config: MCPServersConfig): Promise<void> {
   await ensureFile();
-  await fs.writeFile(dataFile, JSON.stringify(servers, null, 2), 'utf8');
+  await fs.writeFile(dataFile, JSON.stringify(config, null, 2), 'utf8');
 }
+
+
