@@ -155,6 +155,17 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* MCP Servers */}
+          <div className="mb-6">
+            <h3 className="mb-4 text-lg font-medium text-gray-900">MCP Servers</h3>
+            <Link
+              href="/settings/mcp-servers"
+              className="inline-block rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+            >
+              Manage MCP Servers
+            </Link>
+          </div>
+
           <div className="flex gap-4">
             <button
               onClick={saveSettings}
