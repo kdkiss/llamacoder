@@ -42,10 +42,10 @@ export default async function Page({
           createdAt: new Date()
         }
       ]
-    };
+    } as Chat;
   }
 
-  return <PageClient chat={chat} />;
+  return <PageClient chat={chat!} />;
 }
 
 const getChatById = cache(async (id: string) => {
