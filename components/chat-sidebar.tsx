@@ -9,7 +9,7 @@ import { parseTags } from '@/lib/chatUtils';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Switch } from './ui/switch';
-import { StarIcon, ArchiveIcon, TagIcon, SearchIcon, XIcon } from './icons';
+
 
 interface Chat {
   id: string;
@@ -221,6 +221,15 @@ function TagIcon(props: any) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M12 2L2 21h10l10-19H12zM12 6l7 13H5z" />
+    </svg>
+  );
+}
+
+function XIcon(props: any) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 6L6 18" />
+      <path d="M6 6l12 12" />
     </svg>
   );
 }
