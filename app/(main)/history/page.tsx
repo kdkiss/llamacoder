@@ -19,11 +19,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { getPrisma } from "@/lib/prisma";
 
+interface Chat {
+  id: string;
+  title: string | null;
+  createdAt: Date;
+  messages: Array<{
+    content: string;
+  }>;
+}
+
 export const dynamic = "force-dynamic";
 
 export default function ChatHistoryPage() {
   const router = useRouter();
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState<Chat[]>([]);
 
   const handleDeleteChat = async (chatId: string) => {
     // Delete chat implementation
