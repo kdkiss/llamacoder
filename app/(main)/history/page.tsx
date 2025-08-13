@@ -1,15 +1,37 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { formatDistanceToNow } from "date-fns";
+import { Home, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { getPrisma } from "@/lib/prisma";
+
 export const dynamic = "force-dynamic";
 
-export default async function ChatHistoryPage() {
-  const prisma = getPrisma();
-  const chats = await prisma.chat.findMany({
-    orderBy: {
-      createdAt: "desc"
+export default function ChatHistoryPage() {
+  const router = useRouter();
+  const [chats, setChats] = useState([]);
 
-    }
-  }
+  const handleDeleteChat = async (chatId: string) => {
+    // Delete chat implementation
+  };
+
+  const handleDeleteAllChats = async () => {
+    // Delete all chats implementation
+  };
 
   // Format date function
   const formatDate = (date: Date) => {
