@@ -47,6 +47,7 @@ model Message {
   id        String   @id @default(nanoid(16))
   role      String
   content   String
+  fileUrl   String?
   chatId    String
   position  Int
   createdAt DateTime @default(now())
