@@ -7,6 +7,7 @@ export type MCPServersConfig = {
     args?: string[];
     url?: string;
   }>;
+
 };
 
 const dataFile = path.join(process.cwd(), 'data', 'mcp-servers.json');
@@ -31,4 +32,5 @@ export async function saveConfig(config: MCPServersConfig): Promise<void> {
   await ensureFile();
   await fs.writeFile(dataFile, JSON.stringify(config, null, 2), 'utf8');
 }
+
 

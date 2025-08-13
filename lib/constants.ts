@@ -51,38 +51,43 @@ export const MODELS = [
 
 export const SUGGESTED_PROMPTS = [
   {
-    title: "Quiz app",
+    title: "AI Chatbot",
     description:
-      "Make me a quiz app about American history. Make sure to give the user an explanation on each question whether they got it right or wrong and keep a score going",
+      "Create a modern AI chatbot interface with message history, typing indicators, markdown support, and the ability to export conversations. Include a sidebar with chat history and settings.",
   },
   {
-    title: "SaaS Landing page",
+    title: "Task Management App",
     description:
-      "A landing page for a SaaS business that includes a clear value proposition in a prominent hero section, concise feature overviews, testimonials, pricing, and a clear call-to-action button leading to a free trial or demo.",
+      "Build a Trello-like task management app with drag-and-drop functionality, boards, lists, and cards. Include due dates, labels, checklists, and team collaboration features.",
   },
   {
-    title: "Pomodoro Timer",
+    title: "Weather Dashboard",
     description:
-      "Make a beautiful pomodoro timer where I can adjust the lengths of the focus time and the break and it will beep when done.",
+      "Create a beautiful weather dashboard that shows current conditions, 7-day forecast, interactive maps, and weather alerts. Include location search and save favorite cities.",
   },
   {
-    title: "Blog app",
+    title: "Expense Tracker",
     description:
-      "Make me a blog app that has a few blogs there for people to read. Users can click into the blogs and read them, then go back to the homepage to see more.",
-  },
-  // {
-  //   title: "Recipe site",
-  //   description:
-  //     "Make me a site that has easy to make recipes in a grid that you can click into and see the full recipe. Also make it possible for me to add my own",
-  // },
-  {
-    title: "Flashcard app",
-    description:
-      "Build me a flashcard app about llamas. Have some flash cards and also have the ability for users to add their own. Show one side of a card at first and reveal the answer on button click, keeping track of correct guesses to measure progress.",
+      "Make a personal finance app to track expenses with categories, monthly budgets, spending analytics with charts, and CSV export functionality.",
   },
   {
-    title: "Timezone dashboard",
+    title: "Recipe Finder",
     description:
-      "Make me a time zone dashboard that shows me the time zone in the top 6 most popular time zones and gives me a dropdown to add others",
+      "Build a recipe discovery app with search by ingredients, dietary filters, step-by-step cooking instructions, timer integration, and the ability to save favorite recipes.",
+  },
+  {
+    title: "Portfolio Website",
+    description:
+      "Create a modern developer portfolio with dark mode toggle, project showcase, skills section, contact form, and smooth scrolling animations.",
+  },
+  {
+    title: "Music Player",
+    description:
+      "Design a sleek music player with playlist management, audio visualization, progress bar, volume controls, and keyboard shortcuts for playback.",
+  },
+  {
+    title: "Real-time Chat",
+    description:
+      "Build a real-time chat application with rooms, private messaging, emoji support, file sharing, and online user indicators using WebSockets.",
   },
 ];
