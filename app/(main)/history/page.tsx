@@ -1,24 +1,24 @@
 import { getPrisma } from "@/lib/prisma";
 import Link from "next/link";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function ChatHistoryPage() {
   const prisma = getPrisma();
   const chats = await prisma.chat.findMany({
     orderBy: {
-      createdAt: 'desc'
+      createdAt: "desc"
     }
   });
 
   // Format date function
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
+    return new Date(date).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true
     });
   };
