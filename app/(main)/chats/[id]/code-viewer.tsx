@@ -76,31 +76,31 @@ export default function CodeViewer({
 
   return (
     <>
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-300 px-4">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-300 dark:border-gray-700 px-4">
         <div className="inline-flex items-center gap-4">
           <button
-            className="text-gray-400 hover:text-gray-700"
+            className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
             onClick={onClose}
           >
             <CloseIcon className="size-5" />
           </button>
-          <span>
+          <span className="text-foreground">
             {title} v{currentVersion + 1}
           </span>
         </div>
         {layout === "tabbed" && (
-          <div className="rounded-lg border-2 border-gray-300 p-1">
+          <div className="rounded-lg border-2 border-gray-300 dark:border-gray-700 p-1">
             <button
               onClick={() => onTabChange("code")}
               data-active={activeTab === "code" ? true : undefined}
-              className="inline-flex h-7 w-16 items-center justify-center rounded text-xs font-medium data-[active]:bg-blue-500 data-[active]:text-white"
+              className="inline-flex h-7 w-16 items-center justify-center rounded text-xs font-medium text-foreground data-[active]:bg-blue-500 data-[active]:text-white"
             >
               Code
             </button>
             <button
               onClick={() => onTabChange("preview")}
               data-active={activeTab === "preview" ? true : undefined}
-              className="inline-flex h-7 w-16 items-center justify-center rounded text-xs font-medium data-[active]:bg-blue-500 data-[active]:text-white"
+              className="inline-flex h-7 w-16 items-center justify-center rounded text-xs font-medium text-foreground data-[active]:bg-blue-500 data-[active]:text-white"
             >
               Preview
             </button>
