@@ -38,40 +38,52 @@ export async function POST(req: Request) {
     baseURL: baseUrl,
   });
 
-  const res = await openai.chat.completions.create({
-    model,
-    messages: messages.map((m) => ({ 
-      role: m.role as "system" | "user" | "assistant", 
-      content: m.content 
-    })),
-    stream: true,
-    temperature: 0.2,
-    max_tokens: 9000,
-  });
+  try {
+    console.log('Making API call with model:', model);
+    console.log('Base URL:', baseUrl);
+    console.log('Messages count:', messages.length);
+    
+    const res = await openai.chat.completions.create({
+      model,
+      messages: messages.map((m) => ({ 
+        role: m.role as "system" | "user" | "assistant", 
+        content: m.content 
+      })),
+      stream: true,
+      temperature: 0.2,
+      max_tokens: 9000,
+    });
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const chunk of res) {
-          const chunkData = `data: ${JSON.stringify(chunk)}\n\n`;
-          controller.enqueue(encoder.encode(chunkData));
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of res) {
+            const chunkData = `data: ${JSON.stringify(chunk)}\n\n`;
+            controller.enqueue(encoder.encode(chunkData));
+          }
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
+        } catch (error) {
+          controller.error(error);
         }
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-        controller.close();
-      } catch (error) {
-        controller.error(error);
       }
-    }
-  });
+    });
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    },
-  });
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
+  } catch (error) {
+    console.error('API Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 export const runtime = "nodejs";
