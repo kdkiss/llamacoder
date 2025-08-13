@@ -27,6 +27,11 @@ export default async function Page({
       title: "New Chat",
       llamaCoderVersion: "v2",
       shadcn: true,
+      tags: "",
+      isFavorite: false,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       messages: [
         {
           id: "fallback-user",
@@ -36,8 +41,7 @@ export default async function Page({
           chatId: id,
           createdAt: new Date()
         }
-      ],
-      createdAt: new Date()
+      ]
     };
   }
 
