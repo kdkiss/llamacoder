@@ -20,8 +20,9 @@ import Header from "@/components/header";
 import { useS3Upload } from "next-s3-upload";
 import UploadIcon from "@/components/icons/upload-icon";
 import { XCircleIcon } from "@heroicons/react/20/solid";
-import { MODELS, SUGGESTED_PROMPTS } from "@/lib/constants";
+import { MODELS } from "@/lib/constants";
 import { getUserSettings } from "@/lib/settings";
+import DynamicPrompts from "@/components/dynamic-prompts";
 
 export default function Home() {
   const { setStreamPromise } = use(Context);
@@ -347,18 +348,7 @@ export default function Home() {
                   />
                 )}
               </div>
-              <div className="mt-4 flex w-full flex-wrap justify-center gap-3">
-                {SUGGESTED_PROMPTS.map((v) => (
-                  <button
-                    key={v.title}
-                    type="button"
-                    onClick={() => setPrompt(v.description)}
-                    className="rounded bg-gray-200 px-2.5 py-1.5 text-xs hover:bg-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  >
-                    {v.title}
-                  </button>
-                ))}
-              </div>
+              <DynamicPrompts onPromptSelect={setPrompt} />
             </Fieldset>
           </form>
         </div>
