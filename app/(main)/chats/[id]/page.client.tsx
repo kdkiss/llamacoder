@@ -107,6 +107,8 @@ export default function PageClient({ chat }: { chat: Chat }) {
             setStreamText("");
             setStreamPromise(undefined);
             setActiveMessage(message);
+            // Force page refresh to show the saved message
+            window.location.reload();
           });
         });
       } finally {
