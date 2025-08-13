@@ -148,7 +148,7 @@ export default function ChatHistoryPage() {
                           <AlertDialogTitle>Delete Chat?</AlertDialogTitle>
                           <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the chat
-                            "{chat.title || "Untitled Chat"}".
+                            '{chat.title || 'Untitled Chat'}'.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
