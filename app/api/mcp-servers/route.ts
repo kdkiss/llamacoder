@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
   const port = body.port;
   const username = body.username ? String(body.username).trim() : undefined;
   const password = body.password ? String(body.password).trim() : undefined;
+
   if (!name || !host || !port) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
@@ -38,6 +39,7 @@ export async function PUT(req: NextRequest) {
   const port = body.port ? Number(body.port) : undefined;
   const username = body.username ? String(body.username).trim() : undefined;
   const password = body.password ? String(body.password).trim() : undefined;
+
   if (!id) {
     return NextResponse.json({ error: 'Missing server id' }, { status: 400 });
   }
@@ -47,6 +49,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Server not found' }, { status: 404 });
   }
   servers[index] = { ...servers[index], name: name ?? servers[index].name, host: host ?? servers[index].host, port: port ?? servers[index].port, username, password };
+
   await saveServers(servers);
   return NextResponse.json(servers[index]);
 }
