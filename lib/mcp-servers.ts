@@ -37,3 +37,4 @@ export async function getServers(): Promise<MCPServersConfig['mcpServers']> {
   return config.mcpServers;
 }
 
+
