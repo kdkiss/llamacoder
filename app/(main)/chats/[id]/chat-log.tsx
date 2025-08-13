@@ -32,7 +32,7 @@ export default function ChatLog({
         {chat.messages.slice(2).map((message) => (
           <Fragment key={message.id}>
             {message.role === "user" ? (
-              <UserMessage content={message.content} />
+              <UserMessage content={message.content} fileUrl={message.fileUrl} />
             ) : (
               <AssistantMessage
                 content={message.content}
