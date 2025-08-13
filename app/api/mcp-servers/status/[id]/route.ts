@@ -22,12 +22,24 @@ export async function GET(
 ) {
   const { id } = context.params as { id: string };
   const servers = await getServers();
-  const srv = servers.find((s) => s.id === id);
+  const srv = servers[id];
   if (!srv) {
     return NextResponse.json({ online: false }, { status: 404 });
   }
 
-  const online = await checkPort(srv.host, srv.port);
-  return NextResponse.json({ online });
+  // Extract host and port from URL if it exists
+  if (srv.url) {
+    try {
+      const url = new URL(srv.url);
+      const host = url.hostname;
+      const port = parseInt(url.port) || (url.protocol === 'https:' ? 443 : 80);
+      const online = await checkPort(host, port);
+      return NextResponse.json({ online });
+    } catch {
+      return NextResponse.json({ online: false });
+    }
+  }
+
+  return NextResponse.json({ online: false });
 }
 
