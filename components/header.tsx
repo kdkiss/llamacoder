@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import GithubIcon from "@/components/icons/github-icon";
+import { ThemeToggle } from "@/app/components/theme-toggle";
 import logo from "@/public/logo.png";
 import Link from "next/link";
 
@@ -20,25 +21,27 @@ export default function Header() {
       <div className="absolute right-3 flex items-center gap-4">
         <Link
           href="/history"
-          className="hidden rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:block"
+          className="hidden rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 sm:block"
         >
           History
         </Link>
         <Link
           href="/settings"
-          className="hidden rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:block"
+          className="hidden rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 sm:block"
         >
           Settings
         </Link>
         
+        <ThemeToggle />
+        
         <a
           href="https://github.com/nutlope/llamacoder"
           target="_blank"
-          className="ml-auto hidden items-center gap-3 rounded-full bg-white/95 px-5 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-100 transition-all hover:bg-white hover:shadow-md hover:ring-gray-200 sm:flex"
+          className="ml-auto hidden items-center gap-3 rounded-full bg-white/95 px-5 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-100 transition-all hover:bg-white hover:shadow-md hover:ring-gray-200 dark:bg-gray-800/95 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-800 dark:hover:ring-gray-600 sm:flex"
         >
           <GithubIcon className="h-[18px] w-[18px]" />
           <div className="flex items-center gap-1.5">
-            <span className="font-semibold text-gray-900">5k+</span>
+            <span className="font-semibold text-gray-900 dark:text-gray-100">5k+</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
