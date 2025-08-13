@@ -11,6 +11,8 @@ interface ServerForm {
   port: string;
   username?: string;
   password?: string;
+  online?: boolean;
+
 }
 
 export default function MCPServersPage() {
@@ -19,9 +21,24 @@ export default function MCPServersPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/mcp-servers")
-      .then((res) => res.json())
-      .then((data) => setServers(data));
+    async function loadServers() {
+      const res = await fetch("/api/mcp-servers");
+      const data: ServerForm[] = await res.json();
+      const withStatus = await Promise.all(
+        data.map(async (srv) => {
+          try {
+            const statusRes = await fetch(`/api/mcp-servers/status/${srv.id}`);
+            const statusData = await statusRes.json();
+            return { ...srv, online: statusData.online };
+          } catch {
+            return { ...srv, online: false };
+          }
+        })
+      );
+      setServers(withStatus);
+    }
+    loadServers();
+
   }, []);
 
   const resetForm = () => {
@@ -36,10 +53,19 @@ export default function MCPServersPage() {
       return;
     }
     const method = form.id ? "PUT" : "POST";
+    const payload = {
+      ...form,
+      name: form.name.trim(),
+      host: form.host.trim(),
+      port: form.port.trim(),
+      username: form.username?.trim(),
+      password: form.password?.trim(),
+    };
     const res = await fetch("/api/mcp-servers", {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
+
     });
     if (!res.ok) {
       const data = await res.json();
@@ -47,10 +73,14 @@ export default function MCPServersPage() {
       return;
     }
     const data = await res.json();
+    const statusRes = await fetch(`/api/mcp-servers/status/${data.id}`);
+    const { online } = await statusRes.json();
+    const newData = { ...data, online };
     if (method === "POST") {
-      setServers((prev) => [...prev, data]);
+      setServers((prev) => [...prev, newData]);
     } else {
-      setServers((prev) => prev.map((s) => (s.id === data.id ? data : s)));
+      setServers((prev) => prev.map((s) => (s.id === newData.id ? newData : s)));
+
     }
     resetForm();
   };
@@ -162,19 +192,27 @@ export default function MCPServersPage() {
                       {srv.host}:{srv.port}
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(srv)}
-                      className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={`text-sm font-medium ${srv.online ? "text-green-600" : "text-gray-500"}`}
                     >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(srv.id)}
-                      className="rounded-md bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
-                    >
-                      Delete
-                    </button>
+                      {srv.online ? "Online" : "Offline"}
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(srv)}
+                        className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(srv.id)}
+                        className="rounded-md bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
+                      >
+                        Delete
+                      </button>
+                    </div>
+
                   </div>
                 </li>
               ))}

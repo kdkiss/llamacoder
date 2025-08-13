@@ -8,7 +8,12 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, host, port, username, password } = body;
+  const name = String(body.name ?? '').trim();
+  const host = String(body.host ?? '').trim();
+  const port = body.port;
+  const username = body.username ? String(body.username).trim() : undefined;
+  const password = body.password ? String(body.password).trim() : undefined;
+
   if (!name || !host || !port) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
@@ -28,7 +33,13 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   const body = await req.json();
-  const { id, name, host, port, username, password } = body;
+  const id = String(body.id ?? '').trim();
+  const name = body.name ? String(body.name).trim() : undefined;
+  const host = body.host ? String(body.host).trim() : undefined;
+  const port = body.port ? Number(body.port) : undefined;
+  const username = body.username ? String(body.username).trim() : undefined;
+  const password = body.password ? String(body.password).trim() : undefined;
+
   if (!id) {
     return NextResponse.json({ error: 'Missing server id' }, { status: 400 });
   }
@@ -37,7 +48,8 @@ export async function PUT(req: NextRequest) {
   if (index === -1) {
     return NextResponse.json({ error: 'Server not found' }, { status: 404 });
   }
-  servers[index] = { ...servers[index], name, host, port: Number(port), username, password };
+  servers[index] = { ...servers[index], name: name ?? servers[index].name, host: host ?? servers[index].host, port: port ?? servers[index].port, username, password };
+
   await saveServers(servers);
   return NextResponse.json(servers[index]);
 }
