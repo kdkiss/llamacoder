@@ -125,7 +125,7 @@ export default function ChatHistoryPage() {
                           <AlertDialogTitle>Delete Chat?</AlertDialogTitle>
                           <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the chat
-                            &apos;{chat.title || &apos;Untitled Chat&apos;}&apos;.
+                            &apos;{chat.title || "Untitled Chat"}&apos;.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -144,7 +144,7 @@ export default function ChatHistoryPage() {
                   </p>
                   <div className="mt-4 flex justify-between items-center">
                     <span className="text-xs text-muted-foreground">
-                      {chat.messages.length} message{chat.messages.length !== 1 ? &apos;s&apos; : &apos;&apos;}
+                      {chat.messages.length} message{chat.messages.length !== 1 ? "s" : ""}
                     </span>
                     <Button
                       variant="outline"
