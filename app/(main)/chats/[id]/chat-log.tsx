@@ -59,9 +59,34 @@ export default function ChatLog({
   );
 }
 
-function UserMessage({ content }: { content: string }) {
+function UserMessage({ content, fileUrl }: { content: string; fileUrl?: string | null }) {
   return (
-    <div className="relative inline-flex max-w-[80%] items-end gap-3 self-end">
+    <div className="relative inline-flex max-w-[80%] flex-col items-end gap-3 self-end">
+      {fileUrl && (
+        <div className="mb-2">
+          {fileUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ? (
+            <img
+              src={fileUrl}
+              alt="Uploaded image"
+              className="max-w-xs rounded-lg shadow-md"
+            />
+          ) : (
+            <div className="rounded-lg bg-white p-3 shadow-md">
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+                <span className="text-sm font-medium">View File</span>
+              </a>
+            </div>
+          )}
+        </div>
+      )}
       <div className="whitespace-pre-wrap rounded bg-white px-4 py-2 text-gray-600 shadow">
         {content}
       </div>
