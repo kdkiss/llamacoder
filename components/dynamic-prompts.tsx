@@ -127,21 +127,6 @@ export default function DynamicPrompts({ onPromptSelect }: DynamicPromptsProps) 
                 {prompt.title}
               </button>
               
-              {(prompt.difficulty || prompt.type) && (
-                <div className="absolute -top-2 -right-2 flex gap-1">
-                  {prompt.difficulty && (
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${getDifficultyColor(prompt.difficulty)}`}>
-                      {prompt.difficulty}
-                    </span>
-                  )}
-                  {prompt.type && (
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${getTypeColor(prompt.type)}`}>
-                      {prompt.type}
-                    </span>
-                  )}
-                </div>
-              )}
-              
               <button
                 type="button"
                 onClick={(e) => {
