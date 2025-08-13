@@ -1,73 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { deleteChat, deleteAllChats } from "./actions";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2, Home, AlertTriangle } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+export const dynamic = "force-dynamic";
 
-interface Chat {
-  id: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-  messages: Array<{
-    id: string;
-    content: string;
-    role: string;
-    position: number;
-  }>;
-}
+export default async function ChatHistoryPage() {
+  const prisma = getPrisma();
+  const chats = await prisma.chat.findMany({
+    orderBy: {
+      createdAt: "desc"
 
-export default function ChatHistoryPage() {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    fetchChats();
-  }, []);
-
-  async function fetchChats() {
-    try {
-      const response = await fetch("/api/chats");
-      const data = await response.json();
-      setChats(data);
-    } catch (error) {
-      console.error("Error fetching chats:", error);
-    } finally {
-      setLoading(false);
     }
   }
 
-  async function handleDeleteChat(chatId: string) {
-    try {
-      await deleteChat(chatId);
-      setChats(chats.filter(chat => chat.id !== chatId));
-    } catch (error) {
-      console.error("Error deleting chat:", error);
-    }
-  }
+  // Format date function
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    });
+  };
 
-  async function handleDeleteAllChats() {
-    try {
-      await deleteAllChats();
-      setChats([]);
-    } catch (error) {
-      console.error("Error deleting all chats:", error);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
