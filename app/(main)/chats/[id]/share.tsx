@@ -25,7 +25,7 @@ export function Share({ message }: { message?: Message }) {
       <button
         type="submit"
         disabled={!message}
-        className="inline-flex items-center gap-1 rounded border border-border px-1.5 py-0.5 text-sm text-muted-foreground enabled:hover:bg-background disabled:opacity-50"
+        className="inline-flex items-center gap-1 rounded border border-gray-300 px-1.5 py-0.5 text-sm text-gray-600 enabled:hover:bg-white disabled:opacity-50"
       >
         <ShareIcon className="size-3" />
         Share

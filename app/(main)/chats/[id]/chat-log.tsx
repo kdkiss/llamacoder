@@ -62,7 +62,7 @@ export default function ChatLog({
 function UserMessage({ content }: { content: string }) {
   return (
     <div className="relative inline-flex max-w-[80%] items-end gap-3 self-end">
-      <div className="whitespace-pre-wrap rounded bg-primary px-4 py-2 text-primary-foreground shadow">
+      <div className="whitespace-pre-wrap rounded bg-white px-4 py-2 text-gray-600 shadow">
         {content}
       </div>
     </div>
@@ -89,14 +89,14 @@ function AssistantMessage({
       {parts.map((part, i) => (
         <div key={i}>
           {part.type === "text" ? (
-            <Markdown className="prose dark:prose-invert">{part.content}</Markdown>
+            <Markdown className="prose">{part.content}</Markdown>
           ) : part.type === "first-code-fence-generating" ? (
             <div className="my-4">
               <button
                 disabled
-                className="inline-flex w-full animate-pulse items-center gap-2 rounded-lg border-4 border-border p-1.5"
+                className="inline-flex w-full animate-pulse items-center gap-2 rounded-lg border-4 border-gray-300 p-1.5"
               >
-                <div className="flex size-8 items-center justify-center rounded bg-muted font-bold">
+                <div className="flex size-8 items-center justify-center rounded bg-gray-300 font-bold">
                   V{version}
                 </div>
                 <div className="flex flex-col gap-0.5 text-left leading-none">
@@ -109,11 +109,11 @@ function AssistantMessage({
           ) : message ? (
             <div className="my-4">
               <button
-                className={`${isActive ? "bg-background" : "bg-muted hover:border-border hover:bg-muted/80"} inline-flex w-full items-center gap-2 rounded-lg border-4 border-border p-1.5`}
+                className={`${isActive ? "bg-white" : "bg-gray-300 hover:border-gray-400 hover:bg-gray-400"} inline-flex w-full items-center gap-2 rounded-lg border-4 border-gray-300 p-1.5`}
                 onClick={() => onMessageClick(message)}
               >
                 <div
-                  className={`${isActive ? "bg-muted" : "bg-muted/60"} flex size-8 items-center justify-center rounded font-bold`}
+                  className={`${isActive ? "bg-gray-300" : "bg-gray-200"} flex size-8 items-center justify-center rounded font-bold`}
                 >
                   V{version}
                 </div>
@@ -122,7 +122,7 @@ function AssistantMessage({
                     {toTitleCase(part.filename.name)}{" "}
                     {version !== 1 && `v${version}`}
                   </div>
-                  <div className="text-xs leading-none text-muted-foreground">
+                  <div className="text-xs leading-none text-gray-500">
                     {part.filename.name}
                     {version !== 1 && `-v${version}`}
                     {"."}
@@ -137,10 +137,10 @@ function AssistantMessage({
           ) : (
             <div className="my-4">
               <button
-                className="inline-flex w-full items-center gap-2 rounded-lg border-4 border-border p-1.5"
+                className="inline-flex w-full items-center gap-2 rounded-lg border-4 border-gray-300 p-1.5"
                 disabled
               >
-                <div className="flex size-8 items-center justify-center rounded bg-muted font-bold">
+                <div className="flex size-8 items-center justify-center rounded bg-gray-300 font-bold">
                   V{version}
                 </div>
                 <div className="flex flex-col gap-0.5 text-left leading-none">
@@ -148,7 +148,7 @@ function AssistantMessage({
                     {toTitleCase(part.filename.name)}{" "}
                     {version !== 1 && `v${version}`}
                   </div>
-                  <div className="text-xs leading-none text-muted-foreground">
+                  <div className="text-xs leading-none text-gray-500">
                     {part.filename.name}
                     {version !== 1 && `-v${version}`}
                     {"."}
