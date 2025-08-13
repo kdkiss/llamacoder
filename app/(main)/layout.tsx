@@ -1,3 +1,5 @@
+'use client';
+
 import Providers from "@/app/(main)/providers";
 import { Toaster } from "@/components/ui/toaster";
 

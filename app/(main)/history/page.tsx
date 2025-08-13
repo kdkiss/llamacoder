@@ -1,76 +1,184 @@
-import { getPrisma } from "@/lib/prisma";
-import Link from "next/link";
+"use client";
 
-export const dynamic = 'force-dynamic';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { deleteChat, deleteAllChats } from "./actions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Trash2, Home, AlertTriangle } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
-export default async function ChatHistoryPage() {
-  const prisma = getPrisma();
-  const chats = await prisma.chat.findMany({
-    orderBy: {
-      createdAt: 'desc'
+interface Chat {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  messages: Array<{
+    id: string;
+    content: string;
+    role: string;
+    position: number;
+  }>;
+}
+
+export default function ChatHistoryPage() {
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchChats();
+  }, []);
+
+  async function fetchChats() {
+    try {
+      const response = await fetch("/api/chats");
+      const data = await response.json();
+      setChats(data);
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    } finally {
+      setLoading(false);
     }
-  });
+  }
 
-  // Format date function
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
+  async function handleDeleteChat(chatId: string) {
+    try {
+      await deleteChat(chatId);
+      setChats(chats.filter(chat => chat.id !== chatId));
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+    }
+  }
+
+  async function handleDeleteAllChats() {
+    try {
+      await deleteAllChats();
+      setChats([]);
+    } catch (error) {
+      console.error("Error deleting all chats:", error);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Chat History</h1>
-          <p className="mt-2 text-gray-600">
-            View and manage your previous conversations
-          </p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Chat History</h1>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => router.push("/")}
+              className="flex items-center gap-2"
+            >
+              <Home className="h-4 w-4" />
+              Back to Main
+            </Button>
+            {chats.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="flex items-center gap-2">
+                    <Trash2 className="h-4 w-4" />
+                    Delete All
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete All Chats?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete all your chat history.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAllChats}>
+                      Delete All
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </div>
 
         {chats.length === 0 ? (
-          <div className="rounded-lg bg-white p-8 text-center shadow">
-            <h3 className="text-lg font-medium text-gray-900">No chat history yet</h3>
-            <p className="mt-1 text-gray-500">
-              Start a new conversation to see it appear here
-            </p>
-            <Link
-              href="/"
-              className="mt-4 inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Start New Chat
-            </Link>
-          </div>
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-muted-foreground mb-4">No chat history found</p>
+              <Button onClick={() => router.push("/")}>
+                Start a New Chat
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {chats.map((chat) => (
-              <Link
-                key={chat.id}
-                href={`/chats/${chat.id}`}
-                className="block rounded-lg bg-white p-6 shadow hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-medium text-gray-900">{chat.title}</h2>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {formatDate(chat.createdAt)}
-                    </p>
+              <Card key={chat.id} className="group">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg line-clamp-1">
+                        {chat.title || "Untitled Chat"}
+                      </CardTitle>
+                      <CardDescription>
+                        {formatDistanceToNow(new Date(chat.createdAt), { addSuffix: true })}
+                      </CardDescription>
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Chat?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the chat
+                            "{chat.title || "Untitled Chat"}".
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteChat(chat.id)}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
-                  <div className="flex items-center">
-                    <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-800">
-                      {chat.model}
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {chat.messages[0]?.content || "No messages yet"}
+                  </p>
+                  <div className="mt-4 flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">
+                      {chat.messages.length} message{chat.messages.length !== 1 ? 's' : ''}
                     </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/chats/${chat.id}`)}
+                    >
+                      View Chat
+                    </Button>
                   </div>
-                </div>
-                <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                  {chat.prompt}
-                </p>
-              </Link>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}

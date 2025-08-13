@@ -12,6 +12,7 @@ interface ServerForm {
   username?: string;
   password?: string;
   online?: boolean;
+
 }
 
 export default function MCPServersPage() {
@@ -37,6 +38,7 @@ export default function MCPServersPage() {
       setServers(withStatus);
     }
     loadServers();
+
   }, []);
 
   const resetForm = () => {
@@ -63,6 +65,7 @@ export default function MCPServersPage() {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+
     });
     if (!res.ok) {
       const data = await res.json();
@@ -77,6 +80,7 @@ export default function MCPServersPage() {
       setServers((prev) => [...prev, newData]);
     } else {
       setServers((prev) => prev.map((s) => (s.id === newData.id ? newData : s)));
+
     }
     resetForm();
   };
@@ -208,6 +212,7 @@ export default function MCPServersPage() {
                         Delete
                       </button>
                     </div>
+
                   </div>
                 </li>
               ))}
