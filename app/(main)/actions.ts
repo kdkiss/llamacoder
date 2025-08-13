@@ -165,6 +165,7 @@ export async function createMessage(
   chatId: string,
   text: string,
   role: "assistant" | "user",
+  fileUrl?: string,
 ) {
   const prisma = getPrisma();
   const chat = await prisma.chat.findUnique({
@@ -179,6 +180,7 @@ export async function createMessage(
     data: {
       role,
       content: text,
+      fileUrl,
       position: maxPosition + 1,
       chatId,
     },
