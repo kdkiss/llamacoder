@@ -1,6 +1,5 @@
 import { getPrisma } from "@/lib/prisma";
 import { ChatSidebarClient } from "@/components/chat-sidebar-client";
-import { parseTags } from "@/lib/chatUtils";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,12 +18,14 @@ export default async function ChatHistoryPage() {
     }
   });
 
-  // Transform chats to include parsed tags
+  // Transform chats for client component
   const transformedChats = chats.map(chat => ({
     ...chat,
-    tags: parseTags(chat.tags),
+    tags: "",
     createdAt: chat.createdAt.toISOString(),
-    updatedAt: chat.updatedAt.toISOString(),
+    updatedAt: chat.createdAt.toISOString(),
+    isFavorite: false,
+    isArchived: false,
   }));
 
   return (
