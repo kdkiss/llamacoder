@@ -6,6 +6,9 @@ declare global {
 }
 
 export const getPrisma = cache(() => {
+  const isDev = process.env.NODE_ENV === "development";
+  const isLocalSQLite = process.env.DATABASE_URL?.startsWith("file:");
+  
   if (process.env.NODE_ENV === "production") {
     // In production, use global instance to avoid connection issues
     if (!global.prisma) {
@@ -14,6 +17,17 @@ export const getPrisma = cache(() => {
     return global.prisma;
   }
   
-  // In development, create new instance
+  // In development with SQLite, use the dev schema
+  if (isDev && isLocalSQLite) {
+    return new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL
+        }
+      }
+    });
+  }
+  
+  // Default case
   return new PrismaClient();
 });
