@@ -1,6 +1,6 @@
 "use server";
 
-import { memoryDB } from "@/lib/memory-db";
+import { getPrisma } from "@/lib/prisma";
 import {
   getMainCodingPrompt,
   screenshotToCodePrompt,
@@ -15,13 +15,16 @@ export async function createChat(
   quality: "high" | "low",
   screenshotUrl: string | undefined,
 ) {
-  const chat = await memoryDB.createChat({
-    model,
-    quality,
-    prompt,
-    title: "",
-    llamaCoderVersion: "v2",
-    shadcn: true,
+  const prisma = getPrisma();
+  const chat = await prisma.chat.create({
+    data: {
+      model,
+      quality,
+      prompt,
+      title: "",
+      llamaCoderVersion: "v2",
+      shadcn: true,
+    },
   });
 
   // Add Helicone headers if HELICONE_API_KEY is present
@@ -125,23 +128,30 @@ export async function createChat(
     userMessage = prompt;
   }
 
-  await memoryDB.createMessage({
-    role: "system",
-    content: getMainCodingPrompt(mostSimilarExample),
-    position: 0,
-    chatId: chat.id,
+  await prisma.message.create({
+    data: {
+      role: "system",
+      content: getMainCodingPrompt(mostSimilarExample),
+      position: 0,
+      chatId: chat.id,
+    },
   });
   
-  const lastMessage = await memoryDB.createMessage({
-    role: "user",
-    content: userMessage,
-    position: 1,
-    chatId: chat.id,
+  const lastMessage = await prisma.message.create({
+    data: {
+      role: "user",
+      content: userMessage,
+      position: 1,
+      chatId: chat.id,
+    },
   });
   
   console.log('Created message with ID:', lastMessage.id);
   
-  const newChat = await memoryDB.updateChat(chat.id, { title });
+  const newChat = await prisma.chat.update({
+    where: { id: chat.id },
+    data: { title },
+  });
 
   if (!lastMessage) throw new Error("No new message");
 
@@ -156,16 +166,22 @@ export async function createMessage(
   text: string,
   role: "assistant" | "user",
 ) {
-  const chat = await memoryDB.findChatById(chatId);
+  const prisma = getPrisma();
+  const chat = await prisma.chat.findUnique({
+    where: { id: chatId },
+    include: { messages: true },
+  });
   if (!chat) notFound();
 
   const maxPosition = Math.max(...chat.messages.map((m: { position: number }) => m.position), -1);
 
-  const newMessage = await memoryDB.createMessage({
-    role,
-    content: text,
-    position: maxPosition + 1,
-    chatId,
+  const newMessage = await prisma.message.create({
+    data: {
+      role,
+      content: text,
+      position: maxPosition + 1,
+      chatId,
+    },
   });
 
   return newMessage;
