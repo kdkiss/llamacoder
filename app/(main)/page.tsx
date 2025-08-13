@@ -13,7 +13,7 @@ import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useState, useRef, useTransition } from "react";
+import { use, useState, useRef, useTransition, useEffect } from "react";
 import { createChat } from "./actions";
 import { Context } from "./providers";
 import Header from "@/components/header";
@@ -21,6 +21,7 @@ import { useS3Upload } from "next-s3-upload";
 import UploadIcon from "@/components/icons/upload-icon";
 import { XCircleIcon } from "@heroicons/react/20/solid";
 import { MODELS, SUGGESTED_PROMPTS } from "@/lib/constants";
+import { getUserSettings } from "@/lib/settings";
 
 export default function Home() {
   const { setStreamPromise } = use(Context);
@@ -28,12 +29,29 @@ export default function Home() {
 
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState(MODELS[0].value);
+  const [availableModels, setAvailableModels] = useState(MODELS);
+
+  useEffect(() => {
+    const settings = getUserSettings();
+    setModel(settings.model);
+    
+    // Create combined models list from all providers
+    const allModels = [
+      ...MODELS, // Keep original models
+      // Add models from settings that might not be in MODELS
+      { label: settings.model, value: settings.model }
+    ].filter((model, index, self) => 
+      index === self.findIndex(m => m.value === model.value)
+    );
+    
+    setAvailableModels(allModels);
+  }, []);
   const [quality, setQuality] = useState("high");
   const [screenshotUrl, setScreenshotUrl] = useState<string | undefined>(
     undefined,
   );
   const [screenshotLoading, setScreenshotLoading] = useState(false);
-  const selectedModel = MODELS.find((m) => m.value === model);
+  const selectedModel = availableModels.find((m) => m.value === model);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isPending, startTransition] = useTransition();
@@ -104,6 +122,7 @@ export default function Home() {
                   screenshotUrl,
                 );
 
+                const settings = getUserSettings();
                 const streamPromise = fetch(
                   "/api/get-next-completion-stream-promise",
                   {
@@ -112,7 +131,9 @@ export default function Home() {
                       messageId: lastMessageId, 
                       chatId, 
                       model, 
-                      userPrompt: prompt 
+                      userPrompt: prompt,
+                      provider: settings.provider,
+                      apiKey: settings.apiKeys[settings.provider as keyof typeof settings.apiKeys]
                     }),
                   },
                 ).then((res) => {
@@ -210,7 +231,7 @@ export default function Home() {
                       <Select.Portal>
                         <Select.Content className="overflow-hidden rounded-md bg-white shadow ring-1 ring-black/5">
                           <Select.Viewport className="space-y-1 p-2">
-                            {MODELS.map((m) => (
+                            {availableModels.map((m) => (
                               <Select.Item
                                 key={m.value}
                                 value={m.value}
@@ -363,6 +384,12 @@ export default function Home() {
             </div>
           </div>
           <div className="flex space-x-4 pb-4 sm:pb-0">
+            <Link
+              href="/settings"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Settings
+            </Link>
             <Link
               href="https://twitter.com/nutlope"
               className="group"

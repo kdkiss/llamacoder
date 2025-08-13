@@ -1,8 +1,9 @@
 import { getPrisma } from "@/lib/prisma";
+import { getUserSettings, getApiConfig } from "@/lib/settings";
 import OpenAI from "openai";
 
 export async function POST(req: Request) {
-  const { messageId, model, chatId, userPrompt } = await req.json();
+  const { messageId, model, chatId, userPrompt, provider, apiKey } = await req.json();
 
   // Skip message lookup and get all messages for the chat
   const prisma = getPrisma();
@@ -26,9 +27,15 @@ export async function POST(req: Request) {
     ];
   }
 
+  // Use provided settings or fall back to OpenRouter
+  const baseUrl = provider === "openai" ? "https://api.openai.com/v1" :
+                  provider === "anthropic" ? "https://api.anthropic.com" :
+                  provider === "mistral" ? "https://api.mistral.ai/v1" :
+                  "https://openrouter.ai/api/v1";
+  
   const openai = new OpenAI({
-    apiKey: process.env.OPENROUTER_API_KEY,
-    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: apiKey || process.env.OPENROUTER_API_KEY,
+    baseURL: baseUrl,
   });
 
   const res = await openai.chat.completions.create({

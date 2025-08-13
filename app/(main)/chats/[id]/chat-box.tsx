@@ -55,6 +55,8 @@ export default function ChatBox({
                   chatId: chat.id,
                   model: chat.model,
                   userPrompt: prompt,
+                  provider: "openrouter",
+                  apiKey: ""
                 }),
               },
             ).then((res) => {

@@ -190,6 +190,8 @@ export default function PageClient({ chat }: { chat: Chat }) {
                         chatId: chat.id,
                         model: chat.model,
                         userPrompt: newMessageText,
+                        provider: "openrouter",
+                        apiKey: ""
                       }),
                     },
                   ).then((res) => {
