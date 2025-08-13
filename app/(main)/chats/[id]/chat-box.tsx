@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createMessage } from "../../actions";
 import { type Chat } from "./page";
+import { Upload, Image as ImageIcon, X } from "lucide-react";
+import { useS3Upload } from "next-s3-upload";
 
 export default function ChatBox({
   chat,
@@ -23,6 +25,12 @@ export default function ChatBox({
   const didFocusOnce = useRef(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [prompt, setPrompt] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadToS3 } = useS3Upload();
+  
   const textareaResizePrompt = prompt
     .split("\n")
     .map((text) => (text === "" ? "a" : text))
@@ -39,41 +47,136 @@ export default function ChatBox({
     }
   }, [disabled]);
 
+  useEffect(() => {
+    // Clean up preview URL when component unmounts
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleSubmit = async () => {
+    if (!prompt.trim() && !selectedFile) return;
+
+    startTransition(async () => {
+      let fileUrl: string | undefined;
+      
+      if (selectedFile) {
+        setIsUploading(true);
+        try {
+          const { url } = await uploadToS3(selectedFile);
+          fileUrl = url;
+        } catch (error) {
+          console.error('Upload failed:', error);
+          setIsUploading(false);
+          return;
+        }
+        setIsUploading(false);
+      }
+
+      const message = await createMessage(chat.id, prompt, "user", fileUrl);
+      
+      // Clean up file state
+      handleRemoveFile();
+      
+      const streamPromise = fetch(
+        "/api/get-next-completion-stream-promise",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            messageId: message.id,
+            chatId: chat.id,
+            model: chat.model,
+            userPrompt: prompt,
+            provider: "openrouter",
+            apiKey: ""
+          }),
+        },
+      ).then((res) => {
+        if (!res.body) {
+          throw new Error("No body on response");
+        }
+        return res.body;
+      });
+
+      onNewStreamPromise(streamPromise);
+      startTransition(() => {
+        setPrompt("");
+      });
+    });
+  };
+
   return (
     <div className="mx-auto mb-5 flex w-full max-w-prose shrink-0 px-8">
       <form
-        className="relative flex w-full"
-        action={async () => {
-          startTransition(async () => {
-            const message = await createMessage(chat.id, prompt, "user");
-            const streamPromise = fetch(
-              "/api/get-next-completion-stream-promise",
-              {
-                method: "POST",
-                body: JSON.stringify({
-                  messageId: message.id,
-                  chatId: chat.id,
-                  model: chat.model,
-                  userPrompt: prompt,
-                  provider: "openrouter",
-                  apiKey: ""
-                }),
-              },
-            ).then((res) => {
-              if (!res.body) {
-                throw new Error("No body on response");
-              }
-              return res.body;
-            });
-
-            onNewStreamPromise(streamPromise);
-            startTransition(() => {
-              setPrompt("");
-            });
-          });
-        }}
+        className="relative flex w-full flex-col"
+        action={handleSubmit}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
       >
-        <fieldset className="w-full" disabled={disabled}>
+        {previewUrl && (
+          <div className="mb-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <div className="flex items-start gap-3">
+              <img 
+                src={previewUrl} 
+                alt="Preview" 
+                className="h-16 w-16 rounded object-cover"
+              />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">{selectedFile?.name}</p>
+                <p className="text-xs text-gray-500">
+                  {(selectedFile?.size || 0) > 1024 * 1024 
+                    ? `${((selectedFile?.size || 0) / (1024 * 1024)).toFixed(1)} MB`
+                    : `${((selectedFile?.size || 0) / 1024).toFixed(1)} KB`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveFile}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+        
+        <fieldset className="w-full" disabled={disabled || isUploading}>
           <div className="relative flex rounded-lg border-4 border-gray-300 bg-white">
             <div className="relative w-full">
               <div className="w-full p-2">
@@ -83,11 +186,11 @@ export default function ChatBox({
               </div>
               <textarea
                 ref={textareaRef}
-                placeholder="Follow up"
+                placeholder={selectedFile ? "Add a caption..." : "Follow up"}
                 autoFocus={!disabled}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                required
+                required={!selectedFile}
                 name="prompt"
                 className="peer absolute inset-0 w-full resize-none bg-transparent p-2 placeholder-gray-500 focus:outline-none disabled:opacity-50"
                 onKeyDown={(event) => {
@@ -102,20 +205,38 @@ export default function ChatBox({
             </div>
             <div className="pointer-events-none absolute inset-0 rounded peer-focus:outline peer-focus:outline-offset-0 peer-focus:outline-blue-500" />
 
-            <div className="absolute bottom-1.5 right-1.5 flex has-[:disabled]:opacity-50">
+            <div className="absolute bottom-1.5 right-1.5 flex items-center gap-2 has-[:disabled]:opacity-50">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="relative inline-flex size-6 items-center justify-center rounded text-gray-500 hover:text-gray-700"
+                disabled={disabled || isUploading}
+              >
+                <Upload className="h-4 w-4" />
+              </button>
+              
               <div className="pointer-events-none absolute inset-0 -bottom-[1px] rounded bg-blue-700" />
 
               <button
                 className="relative inline-flex size-6 items-center justify-center rounded bg-blue-500 font-medium text-white shadow-lg outline-blue-300 hover:bg-blue-500/75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 type="submit"
+                disabled={disabled || isUploading}
               >
-                <Spinner loading={disabled}>
+                <Spinner loading={disabled || isUploading}>
                   <ArrowRightIcon />
                 </Spinner>
               </button>
             </div>
           </div>
         </fieldset>
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png, image/jpeg, image/webp"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
       </form>
     </div>
   );
