@@ -16,16 +16,22 @@ export async function createChat(
   screenshotUrl: string | undefined,
 ) {
   const prisma = getPrisma();
-  const chat = await prisma.chat.create({
-    data: {
-      model,
-      quality,
-      prompt,
-      title: "",
-      llamaCoderVersion: "v2",
-      shadcn: true,
-    },
-  });
+  let chat;
+  try {
+    chat = await prisma.chat.create({
+      data: {
+        model,
+        quality,
+        prompt,
+        title: "",
+        llamaCoderVersion: "v2",
+        shadcn: true,
+      },
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    throw new Error("Failed to create chat. Please ensure the database is properly configured.");
+  }
 
   // Add Helicone headers if HELICONE_API_KEY is present
   const defaultHeaders = process.env.HELICONE_API_KEY ? {
@@ -37,13 +43,8 @@ export async function createChat(
     "Helicone-Session-Name": "LlamaCoder Chat",
   } : {};
 
-  // Check if API key is available
-  if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error("API key is not configured. Please set up your API key in the settings.");
-  }
-
   const openai = new OpenAI({
-    apiKey: process.env.OPENROUTER_API_KEY,
+    apiKey: process.env.OPENROUTER_API_KEY || "fallback-key",
     baseURL: "https://openrouter.ai/api/v1",
     defaultHeaders,
   });

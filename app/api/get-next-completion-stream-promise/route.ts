@@ -33,8 +33,24 @@ export async function POST(req: Request) {
                   provider === "mistral" ? "https://api.mistral.ai/v1" :
                   "https://openrouter.ai/api/v1";
 
-  // Check if API key is available
-  const apiKeyToUse = apiKey || process.env.OPENROUTER_API_KEY;
+  // Check if API key is available based on provider
+  let apiKeyToUse = apiKey;
+  if (!apiKeyToUse) {
+    switch (provider) {
+      case "openai":
+        apiKeyToUse = process.env.OPENAI_API_KEY;
+        break;
+      case "anthropic":
+        apiKeyToUse = process.env.ANTHROPIC_API_KEY;
+        break;
+      case "mistral":
+        apiKeyToUse = process.env.MISTRAL_API_KEY;
+        break;
+      default:
+        apiKeyToUse = process.env.OPENROUTER_API_KEY;
+    }
+  }
+  
   if (!apiKeyToUse) {
     return new Response(JSON.stringify({
       error: "API key is not configured. Please set up your API key in the settings."

@@ -9,6 +9,7 @@ import { createMessage } from "../../actions";
 import { type Chat } from "./page";
 import { Upload, Image as ImageIcon, X } from "lucide-react";
 import { useS3Upload } from "next-s3-upload";
+import { getUserSettings } from "@/lib/settings";
 
 export default function ChatBox({
   chat,
@@ -114,6 +115,10 @@ export default function ChatBox({
       // Clean up file state
       handleRemoveFile();
       
+      // Get user settings for API key and provider
+      const userSettings = getUserSettings();
+      const apiKey = userSettings.apiKeys[userSettings.provider as keyof typeof userSettings.apiKeys];
+      
       const response = await fetch(
         "/api/get-next-completion-stream-promise",
         {
@@ -121,10 +126,10 @@ export default function ChatBox({
           body: JSON.stringify({
             messageId: message.id,
             chatId: chat.id,
-            model: chat.model,
+            model: userSettings.model || chat.model,
             userPrompt: prompt,
-            provider: "openrouter",
-            apiKey: ""
+            provider: userSettings.provider,
+            apiKey: apiKey
           }),
         }
       );
