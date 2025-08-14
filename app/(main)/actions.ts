@@ -14,6 +14,8 @@ export async function createChat(
   model: string,
   quality: "high" | "low",
   screenshotUrl: string | undefined,
+  apiKey?: string,
+  provider?: string,
 ) {
   const prisma = getPrisma();
   let chat;
@@ -43,9 +45,22 @@ export async function createChat(
     "Helicone-Session-Name": "LlamaCoder Chat",
   } : {};
 
+  // Use provided API key and provider, fallback to environment variables
+  const finalApiKey = apiKey || process.env.OPENROUTER_API_KEY;
+  const finalProvider = provider || "openrouter";
+  
+  const baseUrl = finalProvider === "openai" ? "https://api.openai.com/v1" :
+                  finalProvider === "anthropic" ? "https://api.anthropic.com" :
+                  finalProvider === "mistral" ? "https://api.mistral.ai/v1" :
+                  "https://openrouter.ai/api/v1";
+
+  if (!finalApiKey) {
+    throw new Error("API key is required. Please configure your API key in settings.");
+  }
+
   const openai = new OpenAI({
-    apiKey: process.env.OPENROUTER_API_KEY || "fallback-key",
-    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: finalApiKey,
+    baseURL: baseUrl,
     defaultHeaders,
   });
 

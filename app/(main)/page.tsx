@@ -116,14 +116,18 @@ export default function Home() {
                 assert.ok(typeof model === "string");
                 assert.ok(quality === "high" || quality === "low");
 
+                const settings = getUserSettings();
+                const apiKey = settings.apiKeys[settings.provider as keyof typeof settings.apiKeys];
+                
                 const { chatId, lastMessageId } = await createChat(
                   prompt,
                   model,
                   quality,
                   screenshotUrl,
+                  apiKey,
+                  settings.provider,
                 );
 
-                const settings = getUserSettings();
                 const streamPromise = fetch(
                   "/api/get-next-completion-stream-promise",
                   {

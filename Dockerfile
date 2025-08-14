@@ -23,18 +23,4 @@ COPY --from=base /app/.next/static ./.next/static
 
 # Expose port and define command to start Next server
 EXPOSE 3000
-
-# Add a script to wait for the database to be ready
-RUN echo '#!/bin/sh\n\
-while ! nc -z db 5432; do\n\
-  echo "Waiting for database to be ready..."\n\
-  sleep 1\n\
-done\n\
-echo "Database is ready!"\n\
-exec "$@"' > /wait-for-db.sh && chmod +x /wait-for-db.sh
-
-# Install netcat for the health check
-RUN apk add --no-cache netcat-openbsd
-
-# Start the application with a delay to ensure the database is ready
-CMD ["/wait-for-db.sh", "node", "server.js"]
+CMD ["node", "server.js"]
