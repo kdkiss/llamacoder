@@ -71,3 +71,14 @@ export function getApiConfig(settings: UserSettings) {
     model: settings.model,
   };
 }
+
+/**
+ * Returns true if an API key is available for the current provider.
+ * Checks both user settings and environment variables.
+ */
+export function isApiKeyConfigured(settings: UserSettings = getUserSettings()) {
+  const provider = settings.provider as keyof typeof PROVIDER_CONFIGS;
+  const config = PROVIDER_CONFIGS[provider];
+  const apiKey = settings.apiKeys[provider] || process.env[config.envKey];
+  return Boolean(apiKey && apiKey.trim().length > 0);
+}

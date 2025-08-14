@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import PlausibleProvider from "next-plausible";
 import "./globals.css";
+import MissingApiAlert from "../components/ui/missing-api-alert";
+import { isApiKeyConfigured, getUserSettings } from "../lib/settings";
 
 let title = "Llama Coder – AI Code Generator";
 let description = "Generate your next app with Llama 3.1 405B";
@@ -43,6 +45,8 @@ export default function RootLayout({
         <PlausibleProvider domain="llamacoder.io" />
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
+        {/* Show missing API key alert if no key configured */}
+        {!isApiKeyConfigured(getUserSettings()) ? <div className="p-4"><MissingApiAlert /></div> : null}
         {children}
       </body>
     </html>
