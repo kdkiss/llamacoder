@@ -45,9 +45,8 @@ export default function RootLayout({
         <PlausibleProvider domain="llamacoder.io" />
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
-        {/* Show missing API key alert if no key configured */}
-        {!isApiKeyConfigured(getUserSettings()) ? <div className="p-4"><MissingApiAlert /></div> : null}
         {children}
+        <MissingApiAlert />
       </body>
     </html>
   );

@@ -114,7 +114,7 @@ export default function ChatBox({
       // Clean up file state
       handleRemoveFile();
       
-      const streamPromise = fetch(
+      const response = await fetch(
         "/api/get-next-completion-stream-promise",
         {
           method: "POST",
@@ -126,13 +126,31 @@ export default function ChatBox({
             provider: "openrouter",
             apiKey: ""
           }),
-        },
-      ).then((res) => {
-        if (!res.body) {
-          throw new Error("No body on response");
         }
-        return res.body;
-      });
+      );
+
+          // Check if the response indicates an API key error
+          if (response.status === 403) {
+            const errorData = await response.json();
+            if (errorData.error && errorData.error.includes("API key is not configured")) {
+              // Show error to user using our existing alert component
+              const event = new CustomEvent('showApiKeyAlert', {
+                detail: { message: "API key is not configured. Please set up your API key in the settings." }
+              });
+              window.dispatchEvent(event);
+              return;
+            }
+          }
+
+      if (!response.ok) {
+        throw new Error("Failed to get response from API");
+      }
+
+      if (!response.body) {
+        throw new Error("No body on response");
+      }
+
+      const streamPromise = Promise.resolve(response.body);
 
       onNewStreamPromise(streamPromise);
       startTransition(() => {

@@ -10,6 +10,7 @@ services:
       - 3005:3000
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/myapp?schema=public
+      - OPENAI_API_KEY=
     depends_on:
       - db
 
@@ -19,6 +20,7 @@ services:
       - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=myapp
 
 volumes:
   db-data:

@@ -32,9 +32,20 @@ export async function POST(req: Request) {
                   provider === "anthropic" ? "https://api.anthropic.com" :
                   provider === "mistral" ? "https://api.mistral.ai/v1" :
                   "https://openrouter.ai/api/v1";
-  
+
+  // Check if API key is available
+  const apiKeyToUse = apiKey || process.env.OPENROUTER_API_KEY;
+  if (!apiKeyToUse) {
+    return new Response(JSON.stringify({
+      error: "API key is not configured. Please set up your API key in the settings."
+    }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   const openai = new OpenAI({
-    apiKey: apiKey || process.env.OPENROUTER_API_KEY,
+    apiKey: apiKeyToUse,
     baseURL: baseUrl,
   });
 

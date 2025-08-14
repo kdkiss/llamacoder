@@ -37,6 +37,11 @@ export async function createChat(
     "Helicone-Session-Name": "LlamaCoder Chat",
   } : {};
 
+  // Check if API key is available
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error("API key is not configured. Please set up your API key in the settings.");
+  }
+
   const openai = new OpenAI({
     apiKey: process.env.OPENROUTER_API_KEY,
     baseURL: "https://openrouter.ai/api/v1",
