@@ -6,12 +6,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sh -c "npx prisma migrate deploy && npx prisma db seed && node server.js"
+    command: sh -c "npx prisma migrate deploy && node server.js"
     ports:
       - 3005:3000
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/myapp?schema=public
-      - OPENAI_API_KEY=
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
     depends_on:
       db:
         condition: service_healthy

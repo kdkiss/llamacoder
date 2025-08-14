@@ -3,12 +3,14 @@ FROM node:21.1.0-alpine AS base
 
 # Install dependencies only to cache them in docker layer
 WORKDIR /app
-COPY package.json yarn.lock* ./
-RUN yarn install --frozen-lockfile --network-timeout 100000
+COPY package.json ./
+RUN yarn install --network-timeout 100000
 
 # Build the project
 COPY . .
-RUN yarn build && ls -la /app/.next
+# Set a dummy DATABASE_URL for build time
+ENV DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
+RUN npx prisma generate && yarn build && ls -la /app/.next
 
 # Production image, copy all the files and run next
 FROM node:21.1.0-alpine AS runner
