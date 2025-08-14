@@ -9,7 +9,7 @@ RUN yarn install --network-timeout 100000
 # Build the project
 COPY . .
 # Set a dummy DATABASE_URL for build time
-ENV DATABASE_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
+ENV DATABASE_POSTGRES_PRISMA_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
 RUN npx prisma generate && yarn build && ls -la /app/.next
 
 # Production image, copy all the files and run next

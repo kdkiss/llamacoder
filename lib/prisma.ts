@@ -1,6 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { Pool } from "@neondatabase/serverless";
 import { cache } from "react";
 
 declare global {
@@ -9,16 +7,13 @@ declare global {
 
 export const getPrisma = cache(() => {
   if (process.env.NODE_ENV === "production") {
-    if (!global.prisma) {
-      const pool = new Pool({ connectionString: process.env.DATABASE_POSTGRES_PRISMA_URL });
-      const adapter = new PrismaNeon(pool);
-      global.prisma = new PrismaClient({ adapter });
-    }
-    return global.prisma;
-  } else {
+    // In production, use global instance to avoid connection issues
     if (!global.prisma) {
       global.prisma = new PrismaClient();
     }
     return global.prisma;
   }
+  
+  // In development, create new instance
+  return new PrismaClient();
 });
