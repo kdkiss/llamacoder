@@ -6,7 +6,7 @@
     "dev": "next dev",
     "dev:db": "prisma db push --schema=prisma/schema.dev.prisma",
     "build": "prisma generate && next build",
-    "vercel-build": "prisma generate --schema=prisma/schema.prod.prisma && prisma db push --schema=prisma/schema.prod.prisma && next build",
+    "vercel-build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
