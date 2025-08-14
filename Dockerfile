@@ -8,7 +8,7 @@ RUN yarn install --frozen-lockfile
 
 # Build the project
 COPY . .
-RUN yarn build
+RUN yarn build && ls -la /app/.next
 
 # Production image, copy all the files and run next
 FROM node:21.1.0-alpine AS runner
