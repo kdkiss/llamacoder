@@ -6,7 +6,7 @@
     "dev": "next dev",
     "dev:db": "prisma db push --schema=prisma/schema.dev.prisma",
     "build": "prisma generate && next build",
-    "vercel-build": "prisma generate && prisma db push && next build",
+    "vercel-build": "prisma generate --schema=prisma/schema.prisma && prisma db push --schema=prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
@@ -15,7 +15,6 @@
     "db:studio": "prisma studio"
   },
   "prisma": {
-    "schema": "prisma/schema.dev.prisma",
     "seed": "ts-node --compiler-options '{\"module\": \"CommonJS\"}' prisma/seed.ts"
   },
   "dependencies": {
