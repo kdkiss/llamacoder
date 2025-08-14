@@ -1,5 +1,5 @@
 # Base image
-FROM node:18-alpine AS base
+FROM node:19-alpine AS base
 
 # Install dependencies only to cache them in docker layer
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY . .
 RUN yarn build
 
 # Production image, copy all the files and run next
-FROM node:18-alpine AS runner
+FROM node:19-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
