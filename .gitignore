@@ -39,3 +39,4 @@ prisma/dev.db
 prisma/dev.db-journal
 llamacoder_dev_plan.md
 data/mcp-servers.json
+.env.docker
