@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     
     // Add timeout to the API call
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 18000); // 18 second timeout
     
     const res = await openai.chat.completions.create({
       model,
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       })),
       stream: true,
       temperature: 0.2,
-      max_tokens: 4000, // Reduced for faster responses
+      max_tokens: 2000, // Further reduced for faster responses
     }, {
       signal: controller.signal
     });
@@ -134,4 +134,4 @@ export async function POST(req: Request) {
 }
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+export const maxDuration = 20;
