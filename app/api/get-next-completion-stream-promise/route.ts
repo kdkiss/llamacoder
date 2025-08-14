@@ -70,6 +70,10 @@ export async function POST(req: Request) {
     console.log('Base URL:', baseUrl);
     console.log('Messages count:', messages.length);
     
+    // Add timeout to the API call
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+    
     const res = await openai.chat.completions.create({
       model,
       messages: messages.map((m) => ({ 
@@ -78,8 +82,12 @@ export async function POST(req: Request) {
       })),
       stream: true,
       temperature: 0.2,
-      max_tokens: 9000,
+      max_tokens: 4000, // Reduced for faster responses
+    }, {
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -106,13 +114,24 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error('API Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    let errorMessage = 'Unknown error occurred';
+    let status = 500;
+    
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        errorMessage = 'Request timed out. Please try with a simpler prompt or try again.';
+        status = 408;
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
+      status,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 }
 
 export const runtime = "nodejs";
-export const maxDuration = 45;
+export const maxDuration = 30;

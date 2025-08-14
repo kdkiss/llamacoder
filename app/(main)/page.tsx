@@ -451,4 +451,4 @@ function LoadingMessage({
 }
 
 export const runtime = "nodejs";
-export const maxDuration = 45;
+export const maxDuration = 30;

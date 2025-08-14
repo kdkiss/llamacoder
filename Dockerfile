@@ -4,7 +4,7 @@ FROM node:21.1.0-alpine AS base
 # Install dependencies only to cache them in docker layer
 WORKDIR /app
 COPY package.json yarn.lock* ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 100000
 
 # Build the project
 COPY . .
