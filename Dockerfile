@@ -1,5 +1,5 @@
 # Base image
-FROM node:21.1.0-alpine AS base
+FROM node:21.1.0-slim AS base
 
 # Install dependencies only to cache them in docker layer
 WORKDIR /app
@@ -10,10 +10,10 @@ RUN yarn install --network-timeout 100000
 COPY . .
 # Set a dummy DATABASE_URL for build time
 ENV DATABASE_POSTGRES_PRISMA_URL="postgresql://dummy:dummy@dummy:5432/dummy?schema=public"
-RUN npx prisma generate && yarn build && ls -la /app/.next
+RUN yarn build
 
 # Production image, copy all the files and run next
-FROM node:21.1.0-alpine AS runner
+FROM node:21.1.0-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
