@@ -142,6 +142,30 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 docker build -t llamacoder .
 docker run -p 3000:3000 llamacoder
 ```
+### Docker
+To run the application with Docker:
+
+1. **Build the Docker image**
+   ```bash
+   docker build -t llamacoder .
+   ```
+
+2. **Start the containers**
+   ```bash 
+   docker-compose up
+   ```
+   This will start the Next.js app and a Postgres database.
+
+3. **Open your browser**
+   Navigate to `http://localhost:3000`
+
+Make sure to set the required environment variables in the `.env` file or pass them as arguments to `docker-compose up`. For example:
+
+```bash
+docker-compose up -e DATABASE_URL=postgresql://postgres:postgres@db:5432/myapp?schema=public
+```
+
+To stop the containers, run `docker-compose down`.
 
 ## License
 
