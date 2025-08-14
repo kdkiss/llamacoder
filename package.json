@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "dev:db": "prisma db push --schema=prisma/schema.dev.prisma",
-    "build": "prisma generate && next build",
-    "vercel-build": "prisma generate --schema=prisma/schema.prisma && prisma db push --schema=prisma/schema.prisma && next build",
+    "build": "prisma generate --schema=prisma/schema.dev.prisma && next build",
+    "vercel-build": "prisma generate --schema=prisma/schema.dev.prisma && prisma db push --schema=prisma/schema.dev.prisma && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
