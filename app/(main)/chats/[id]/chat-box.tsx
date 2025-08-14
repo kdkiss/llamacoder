@@ -210,7 +210,6 @@ export default function ChatBox({
               <textarea
                 ref={textareaRef}
                 placeholder={selectedFile ? "Add a caption..." : "Follow up"}
-                autoFocus={!disabled}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 required={!selectedFile}

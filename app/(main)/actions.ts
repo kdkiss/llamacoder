@@ -20,6 +20,7 @@ export async function createChat(
   const prisma = getPrisma();
   let chat;
   try {
+    console.log('Attempting to create chat with model:', model);
     chat = await prisma.chat.create({
       data: {
         model,
@@ -30,9 +31,10 @@ export async function createChat(
         shadcn: true,
       },
     });
+    console.log('Chat created successfully:', chat.id);
   } catch (error) {
     console.error("Database error:", error);
-    throw new Error("Failed to create chat. Please ensure the database is properly configured.");
+    throw new Error(`Database error: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 
   // Add Helicone headers if HELICONE_API_KEY is present
@@ -81,90 +83,17 @@ export async function createChat(
     defaultHeaders,
   });
 
-  async function fetchTitle() {
-    const responseForChatTitle = await openai.chat.completions.create({
-      model: "moonshotai/kimi-k2:free",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a chatbot helping the user create a simple app or script, and your current job is to create a succinct title, maximum 3-5 words, for the chat given their initial prompt. Please return only the title.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-    const title = responseForChatTitle.choices[0].message?.content || prompt;
-    return title;
-  }
+  // Generate simple title from prompt (no API call)
+  const title = prompt.slice(0, 50).replace(/[^a-zA-Z0-9\s]/g, '').trim() || "New App";
+  const mostSimilarExample = "none"; // Skip example matching to avoid API calls
+  
+  console.log('Using generated title:', title);
 
-  async function fetchTopExample() {
-    const findSimilarExamples = await openai.chat.completions.create({
-      model: "moonshotai/kimi-k2:free",
-      messages: [
-        {
-          role: "system",
-          content: `You are a helpful bot. Given a request for building an app, you match it to the most similar example provided. If the request is NOT similar to any of the provided examples, return "none". Here is the list of examples, ONLY reply with one of them OR "none":
-
-          - landing page
-          - blog app
-          - quiz app
-          - pomodoro timer
-          `,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-
-    const mostSimilarExample =
-      findSimilarExamples.choices[0].message?.content || "none";
-    return mostSimilarExample;
-  }
-
-  const [title, mostSimilarExample] = await Promise.all([
-    fetchTitle(),
-    fetchTopExample(),
-  ]);
-
-  let fullScreenshotDescription;
-  if (screenshotUrl) {
-    const screenshotResponse = await openai.chat.completions.create({
-      model: "meta-llama/llama-3.1-405b-instruct:free",
-      temperature: 0.2,
-      max_tokens: 1000,
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: screenshotToCodePrompt },
-            {
-              type: "image_url",
-              image_url: {
-                url: screenshotUrl,
-              },
-            },
-          ],
-        },
-      ],
-    });
-
-    fullScreenshotDescription = screenshotResponse.choices[0].message?.content;
-  }
-
-  let userMessage: string;
-  if (fullScreenshotDescription) {
-    userMessage =
-      prompt +
-      "RECREATE THIS APP AS CLOSELY AS POSSIBLE: " +
-      fullScreenshotDescription;
-  } else {
-    userMessage = prompt;
-  }
+  // Use prompt directly, handle screenshot in the main API call later
+  let userMessage = prompt;
+  // if (screenshotUrl) {
+  //   userMessage = prompt + " (Screenshot provided for reference)";
+  // }
 
   await prisma.message.create({
     data: {
