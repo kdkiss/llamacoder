@@ -119,14 +119,25 @@ export default function Home() {
                 const settings = getUserSettings();
                 const apiKey = settings.apiKeys[settings.provider as keyof typeof settings.apiKeys];
                 
-                const { chatId, lastMessageId } = await createChat(
-                  prompt,
-                  model,
-                  quality,
-                  screenshotUrl,
-                  apiKey,
-                  settings.provider,
-                );
+                let chatId, lastMessageId;
+                try {
+                  const result = await createChat(
+                    prompt,
+                    model,
+                    quality,
+                    screenshotUrl,
+                    apiKey,
+                    settings.provider,
+                  );
+                  chatId = result.chatId;
+                  lastMessageId = result.lastMessageId;
+                } catch (error) {
+                  if (error instanceof Error && error.message.includes("API key")) {
+                    alert("API key is not configured. Please go to Settings and add your API key.");
+                    return;
+                  }
+                  throw error;
+                }
 
                 const streamPromise = fetch(
                   "/api/get-next-completion-stream-promise",

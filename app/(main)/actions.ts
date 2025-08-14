@@ -46,8 +46,25 @@ export async function createChat(
   } : {};
 
   // Use provided API key and provider, fallback to environment variables
-  const finalApiKey = apiKey || process.env.OPENROUTER_API_KEY;
+  let finalApiKey = apiKey;
   const finalProvider = provider || "openrouter";
+  
+  // Fallback to environment variables if no user API key provided
+  if (!finalApiKey) {
+    switch (finalProvider) {
+      case "openai":
+        finalApiKey = process.env.OPENAI_API_KEY;
+        break;
+      case "anthropic":
+        finalApiKey = process.env.ANTHROPIC_API_KEY;
+        break;
+      case "mistral":
+        finalApiKey = process.env.MISTRAL_API_KEY;
+        break;
+      default:
+        finalApiKey = process.env.OPENROUTER_API_KEY;
+    }
+  }
   
   const baseUrl = finalProvider === "openai" ? "https://api.openai.com/v1" :
                   finalProvider === "anthropic" ? "https://api.anthropic.com" :
@@ -55,7 +72,7 @@ export async function createChat(
                   "https://openrouter.ai/api/v1";
 
   if (!finalApiKey) {
-    throw new Error("API key is required. Please configure your API key in settings.");
+    throw new Error(`API key is required for ${finalProvider}. Please configure your API key in settings or set the ${finalProvider.toUpperCase()}_API_KEY environment variable.`);
   }
 
   const openai = new OpenAI({
