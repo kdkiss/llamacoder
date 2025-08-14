@@ -10,7 +10,7 @@ declare global {
 export const getPrisma = cache(() => {
   if (process.env.NODE_ENV === "production") {
     if (!global.prisma) {
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+      const pool = new Pool({ connectionString: process.env.DATABASE_POSTGRES_PRISMA_URL });
       const adapter = new PrismaNeon(pool);
       global.prisma = new PrismaClient({ adapter });
     }
